@@ -1,18 +1,83 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Students by Major</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
 </head>
+
 <body>
 
-    <h1>Select a Major</h1>
+    <h2>Select a Major</h2>
 
-    <button>CIT Majors</button>
-    <button>Business Majors</button>
+    <button type="button" onClick="getData('CIT')">CIT Majors</button>
 
-    <div id="results"></div>
+    <button type="button" onClick="getData('BUS')">Business Majors</button>
+
+    <div id="studentTable"></div>
+
+    <!-- Handlebars template -->
+
+    <script type="text/x-handlebars-template" id="studentTemplate">
+
+        <h3>We filter our dataset by major</h3>
+
+        <table cellspacing="12">
+
+            <tr>
+                <th>Name</th>
+                <th>Major</th>
+                <th>Midterm</th>
+                <th>Final</th>
+            </tr>
+
+            {{#each rows}}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{major}}</td>
+                <td>{{midterm}}</td>
+                <td>{{final}}</td>
+            </tr>
+            {{/each}}
+
+        </table>
+
+    </script>
+
+    <!-- Ajax request -->
+
+    <script>
+
+        async function getData(selected_major) {
+
+            var response = await fetch('cit5students.json');
+
+            if(response.ok) {
+
+                var data = await response.json();
+
+                var major_students = data.filter(
+                    (student) => student.major == selected_major
+                );
+
+                var templateText = document.getElementById('studentTemplate').innerHTML;
+
+                var compiledTemplateText = Handlebars.compile(templateText);
+
+                var compiledHtml = compiledTemplateText({rows: major_students});
+
+                document.getElementById('studentTable').innerHTML = compiledHtml;
+
+            }
+            else {
+
+                document.querySelector('#studentTable').innerHTML = "Data not found";
+
+            }
+        }
+
+    </script>
 
 </body>
 </html>
